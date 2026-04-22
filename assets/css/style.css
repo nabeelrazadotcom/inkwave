@@ -1,0 +1,137 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* BODY */
+body {
+    background: #111827;
+    color: #F9FAFB;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.7;
+}
+
+/* NAV */
+.nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 6vw;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(17, 24, 39, 0.4);
+    backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+}
+
+.logo {
+    font-family: serif;
+    font-size: 1.2rem;
+}
+
+.nav-actions span {
+    margin-left: 20px;
+    color: #6B7280;
+    cursor: pointer;
+}
+
+/* ENTRY */
+.entry {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 6vw;
+}
+
+.entry h1 {
+    font-family: serif;
+    font-size: 3rem;
+    max-width: 600px;
+}
+
+.cta {
+    margin-top: 20px;
+    color: #2563EB;
+    text-decoration: none;
+}
+
+/* FEATURED */
+.featured {
+    height: 90vh;
+    background: linear-gradient(rgba(17,24,39,0.7), rgba(17,24,39,1)),
+                url('https://picsum.photos/1600/900') center/cover;
+    display: flex;
+    align-items: flex-end;
+    padding: 6vw;
+}
+
+.featured .overlay {
+    max-width: 600px;
+}
+
+.featured h2 {
+    font-family: serif;
+    font-size: 2.5rem;
+}
+
+.featured .author {
+    color: #6B7280;
+}
+
+.featured .excerpt {
+    margin-top: 10px;
+}
+
+/* FLOW */
+.flow {
+    padding: 6vw;
+    max-width: 700px;
+}
+
+/* STORY */
+.story {
+    margin-bottom: 60px;
+    transition: 0.3s;
+}
+
+.story:hover {
+    transform: translateY(-3px);
+}
+
+.story .author {
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.story h2 {
+    font-family: serif;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+/* PAUSE */
+.pause {
+    margin: 80px 0;
+    text-align: center;
+    color: #6B7280;
+    font-style: italic;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .entry h1 {
+        font-size: 2rem;
+    }
+
+    .featured h2 {
+        font-size: 1.8rem;
+    }
+
+    .flow {
+        padding: 10vw;
+    }
+}

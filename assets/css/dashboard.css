@@ -1,0 +1,129 @@
+/* -----------------------------
+   GLOBAL
+------------------------------*/
+body {
+    margin: 0;
+    background: #111827;
+    color: #F9FAFB;
+    font-family: "Inter", sans-serif;
+}
+
+/* -----------------------------
+   BACKGROUND
+------------------------------*/
+.background-flow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(37,99,235,0.18), transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05), transparent 60%);
+}
+
+/* -----------------------------
+   TOP BAR (MINIMAL IDENTITY)
+------------------------------*/
+.topbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+    backdrop-filter: blur(6px);
+}
+
+.brand-small {
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: #F9FAFB;
+}
+
+.user-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.username {
+    font-size: 14px;
+    color: #9CA3AF;
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(37,99,235,0.3);
+}
+
+/* -----------------------------
+   FEED CONTAINER (NO CARDS)
+------------------------------*/
+.feed-container {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 120px auto 80px auto;
+    padding: 0 20px;
+}
+
+/* -----------------------------
+   WRITE ENTRY AREA
+------------------------------*/
+.write-entry {
+    margin-bottom: 50px;
+}
+
+.prompt {
+    color: #9CA3AF;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.fake-input {
+    border-bottom: 1px solid rgba(107,114,128,0.6);
+    padding: 10px 0;
+    color: rgba(249,250,251,0.6);
+    font-size: 15px;
+}
+
+/* -----------------------------
+   POSTS (EDITORIAL STYLE)
+------------------------------*/
+.post {
+    margin-bottom: 60px;
+}
+
+.post h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.post p {
+    color: #D1D5DB;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+/* hover subtle emphasis (no card feel) */
+.post:hover h2 {
+    color: #2563EB;
+    transition: 0.2s ease;
+}
+
+/* -----------------------------
+   RESPONSIVE
+------------------------------*/
+@media (max-width: 768px) {
+    .feed-container {
+        margin-top: 100px;
+    }
+
+    .topbar {
+        padding: 14px 20px;
+    }
+}

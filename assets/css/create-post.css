@@ -1,0 +1,114 @@
+/* -----------------------------
+GLOBAL
+------------------------------*/
+body {
+  margin: 0;
+  background: #111827;
+  color: #f9fafb;
+  font-family: "Inter", sans-serif;
+}
+
+/* -----------------------------
+BACKGROUND
+------------------------------*/
+.background-flow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(37, 99, 235, 0.15),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(255, 255, 255, 0.04),
+      transparent 60%
+    );
+}
+
+/* -----------------------------
+TOP BAR (MINIMAL CONTROL)
+------------------------------*/
+.topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+}
+
+.brand {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  background: transparent;
+  border: 1px solid rgba(107, 114, 128, 0.6);
+  color: #f9fafb;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+/* -----------------------------
+WRITING STUDIO
+------------------------------*/
+.studio {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 120px auto;
+  padding: 0 20px;
+}
+
+/* TITLE FIELD */
+.title {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: "Playfair Display", serif;
+  font-size: 34px;
+  color: #f9fafb;
+  margin-bottom: 30px;
+}
+
+/* TEXT CANVAS */
+.canvas {
+  width: 100%;
+  min-height: 60vh;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #d1d5db;
+}
+
+/* subtle focus behavior */
+.title:focus {
+  color: #2563eb;
+}
+
+.canvas:focus {
+  color: #f9fafb;
+}
