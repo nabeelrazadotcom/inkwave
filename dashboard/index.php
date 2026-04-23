@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+if (!($_SESSION['Loggedin'])) {
+    header("Location: ../auth/login_form.php");
+    exit();
+} 
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,12 +25,13 @@
     <!-- BACKGROUND -->
     <div class="background-flow"></div>
 
+    
     <!-- TOP IDENTITY BAR -->
     <header class="topbar">
         <div class="brand-small">Inkwave</div>
 
         <div class="user-meta">
-            <span class="username">writer_name</span>
+            <span class="username"><?= $_SESSION['username'] ?></span>
             <div class="avatar"></div>
         </div>
     </header>

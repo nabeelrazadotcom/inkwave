@@ -1,45 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <title>Inkwave - Welcome Back</title>
-    <link rel="stylesheet" href="../assets/css/login.css">
-</head>
+session_start();
 
-<body>
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!isset($_POST['username']) || empty($_POST['username'])) {
+        $_SESSION['Login_Err'] = "Enter Your Username";
+        header("Location: login_form.php");
+        exit();
+    } else if (!isset($_POST['password']) || empty($_POST['password'])) {
+        $_SESSION['Login_Err'] = "Enter Your Password";
+        header("Location: login_form.php");
+        exit();
+    } else {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
 
-    <div class="background"></div>
+        // Connecting to Database
+        require_once "../config/db.php";
+        // Checking if Username is registered or not
+        $stmt = mysqli_prepare($db_connect, "SELECT * FROM users WHERE username=?");
+        $stmt->bind_param("s", $username);
 
-    <main class="container">
-
-        <!-- Welcome Zone -->
-        <section class="welcome">
-            <h1>Your words are waiting.</h1>
-            <p class="brand">Inkwave</p>
-        </section>
-
-        <!-- Login Flow -->
-        <section class="login-flow">
-            <div class="input-group">
-                <input type="text" required>
-                <label>Email or Username</label>
-            </div>
-
-            <div class="input-group">
-                <input type="password" required>
-                <label>Password</label>
-            </div>
-
-            <button class="primary-btn">Continue Writing</button>
-
-            <p class="secondary">
-                New to Inkwave? <a href="#">Begin here</a>
-            </p>
-        </section>
-
-    </main>
-
-</body>
-<script src="../assets/js/script.js"></script>
-</html>
+        if ($stmt->execute()) {
+            $data = $stmt->get_result()->num_rows;
+            if ($data === 1) {
+                $_SESSION['Loggedin'] = true;
+                $_SESSION['username'] = $username;
+                header("refresh:2 url=./login_form");
+                header("Location: ../dashboard/index.php");
+                exit();
+            } else {
+                $_SESSION['Login_Err'] = "Incorrect Username or Not Registered.";
+                header("Location: ./login_form.php");
+                exit();
+            }
+        }
+    }
+}

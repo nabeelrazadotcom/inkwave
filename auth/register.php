@@ -1,69 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<?php
 
-<title>Inkwave — Register</title>
+session_start();
 
-<!-- Bootstrap (only grid/utilities, not form styling dependency) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
-<!-- Custom CSS -->
-<link href="../assets/css/register.css" rel="stylesheet">
-</head>
+    // Data Validation
+    if (!isset($_POST['name']) || empty($_POST['name'])) {
+        $_SESSION['register_Err'] = "Enter Your Name...";
+        header("Location: register_form.php");
+        exit();
+    } else if (!isset($_POST['username']) || empty($_POST['username'])) {
+        $_SESSION['register_Err'] = "Enter Your Username...";
+        header("Location: register_form.php");
+        exit();
+    } else if (!isset($_POST['email']) || empty($_POST['email'])) {
+        $_SESSION['register_Err'] = "Enter Your Email...";
+        header("Location: register_form.php");
+        exit();
+    } else if (!isset($_POST['password']) || empty($_POST['password'])) {
+        $_SESSION['register_Err'] = "Enter Your Password...";
+        header("Location: register_form.php");
+        exit();
+    } else if (!strlen($_POST['password']) >= 8) {
+        $_SESSION['register_Err'] = "Atleast 8 Characters are Required in Password...";
+        header("Location: register_form.php");
+        exit();
+    } else {
 
-<body>
+        // Fetching Form Data
+        $name = $_POST['name'];
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-<!-- BACKGROUND -->
-<div class="background-flow" id="bg"></div>
+        // Connecting Database
+        require_once "../config/db.php";
+        if (isset($_SESSION['DatabaseError'])) {
+            header("Location: Couldn't connect to Database.");
+            exit();
+        }
 
-<!-- MAIN -->
-<div class="main container">
+        // Storing Data into Database
+        $stmt = mysqli_prepare($db_connect, "INSERT INTO users (full_name, username, email, password) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $name, $username, $email, $password);
 
-    <div>
+        if ($stmt->execute()) {
+            $_SESSION['register_suc'] = "Your Account has been Created! Redirecting...";
+            header("refresh: 2 url=register_form.php");
+            $_SESSION['register_suc'] = "Login to Continue.";
+            header("Location: login_form.php");
+            exit();
+        } else {
+            $_SESSION['register_Err'] = "Couldn't Creat Your Account. Try Again.";
+            header("Location: register_form.php");
+            exit();
+        }
+    }
 
-        <!-- BRAND -->
-        <div class="brand">
-            <h1>Inkwave</h1>
-            <p>Begin your flow of writing.</p>
-        </div>
-
-        <!-- FORM -->
-        <div class="form-wrap">
-
-            <div class="field">
-                <input type="text" placeholder=" " id="name">
-                <label>Full Name</label>
-            </div>
-
-            <div class="field">
-                <input type="text" placeholder=" " id="username">
-                <label>Username</label>
-            </div>
-
-            <div class="field">
-                <input type="email" placeholder=" " id="email">
-                <label>Email</label>
-            </div>
-
-            <div class="field">
-                <input type="password" placeholder=" " id="password">
-                <label>Password</label>
-            </div>
-
-            <button class="cta">Enter Inkwave</button>
-
-        </div>
-    </div>
-
-</div>
-
-<!-- Custom JS -->
-<script src="../assets/js/script.js"></script>
-
-</body>
-</html>
+} else {
+    $_SESSION['register_Err'] = "Something Went Wrong, Try Again.";
+    header("Location: register_form.php");
+    exit();
+}
