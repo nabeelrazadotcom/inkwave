@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
-<body>
+<body class="home">
 
     <!-- Navigation -->
     <?php include 'includes/navbar.php'; ?>
@@ -190,9 +190,9 @@
         </section>
 
         <!-- Final flow break -->
-        <div class="flow-break reveal" style="padding: 8rem 0;">
-            <p class="flow-break-text" style="font-size: 1rem; letter-spacing: 0.25em; text-transform: uppercase; font-style: normal; font-family: var(--sans); font-weight: 300;">You've reached the edge of the stream.</p>
-            <div class="flow-break-dot" style="margin-top: 1.5rem;"></div>
+        <div class="flow-break flow-break-end reveal">
+            <p class="flow-break-text flow-break-end-text">You've reached the edge of the stream.</p>
+            <div class="flow-break-dot flow-break-end-dot"></div>
         </div>
 
     </main>

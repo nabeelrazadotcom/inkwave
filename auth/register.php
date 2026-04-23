@@ -22,22 +22,23 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $_SESSION['register_Err'] = "Enter Your Password...";
         header("Location: register_form.php");
         exit();
-    } else if (!strlen($_POST['password']) >= 8) {
+    } else if (strlen($_POST['password']) < 8) {
         $_SESSION['register_Err'] = "Atleast 8 Characters are Required in Password...";
         header("Location: register_form.php");
         exit();
     } else {
 
         // Fetching Form Data
-        $name = $_POST['name'];
-        $username = $_POST['username'];
-        $email = $_POST['email'];
+        $name = trim($_POST['name']);
+        $username = trim($_POST['username']);
+        $email = trim($_POST['email']);
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
         // Connecting Database
         require_once "../config/db.php";
         if (isset($_SESSION['DatabaseError'])) {
-            header("Location: Couldn't connect to Database.");
+            $_SESSION['register_Err'] = "Couldn't connect to Database.";
+            header("Location: register_form.php");
             exit();
         }
 
@@ -46,8 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $stmt->bind_param("ssss", $name, $username, $email, $password);
 
         if ($stmt->execute()) {
-            $_SESSION['register_suc'] = "Your Account has been Created! Redirecting...";
-            header("refresh: 2 url=register_form.php");
             $_SESSION['register_suc'] = "Login to Continue.";
             header("Location: login_form.php");
             exit();

@@ -12,28 +12,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: login_form.php");
         exit();
     } else {
-        $username = $_POST['username'];
+        $username = trim($_POST['username']);
         $password = $_POST['password'];
 
         // Connecting to Database
         require_once "../config/db.php";
+
         // Checking if Username is registered or not
-        $stmt = mysqli_prepare($db_connect, "SELECT * FROM users WHERE username=?");
+        $stmt = mysqli_prepare($db_connect, "SELECT username, password FROM users WHERE username=? LIMIT 1");
         $stmt->bind_param("s", $username);
 
         if ($stmt->execute()) {
-            $data = $stmt->get_result()->num_rows;
-            if ($data === 1) {
+            $result = $stmt->get_result();
+            $user = $result ? $result->fetch_assoc() : null;
+
+            if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['Loggedin'] = true;
-                $_SESSION['username'] = $username;
-                header("refresh:2 url=./login_form");
+                $_SESSION['user_id'] = $user['id'];
                 header("Location: ../dashboard/index.php");
                 exit();
             } else {
-                $_SESSION['Login_Err'] = "Incorrect Username or Not Registered.";
+                $_SESSION['Login_Err'] = "Incorrect username or password.";
                 header("Location: ./login_form.php");
                 exit();
             }
+        } else {
+            $_SESSION['Login_Err'] = "Something went wrong. Try again.";
+            header("Location: ./login_form.php");
+            exit();
         }
     }
 }

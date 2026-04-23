@@ -7,7 +7,7 @@
 
 /* BODY */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     background: #111827;
     color: #F9FAFB;
     height: 100vh;
@@ -42,14 +42,30 @@ body {
 
 /* WELCOME */
 .welcome h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    letter-spacing: 0.2px;
     margin-bottom: 10px;
 }
 
+.brandline {
+    color: rgba(156,163,175,0.92);
+    font-size: 0.95rem;
+    max-width: 42ch;
+    line-height: 1.7;
+}
+
 .brand {
-    color: #6B7280;
-    font-size: 0.9rem;
+    margin-top: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0.3px;
+    color: rgba(249,250,251,0.92);
+    font-size: 1.15rem;
+}
+
+.brand em {
+    font-style: italic;
+    color: #2563EB;
 }
 
 /* LOGIN FLOW */
@@ -107,6 +123,9 @@ body {
     cursor: pointer;
     font-size: 1rem;
     transition: 0.3s ease;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .primary-btn:hover {
