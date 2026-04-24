@@ -9,6 +9,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Inkwave — Register</title>
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
 
     <!-- Bootstrap (only grid/utilities, not form styling dependency) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -106,7 +107,7 @@ session_start();
                                     <div class="pfp-wrap">
                                         <div class="pfp" aria-label="Profile photo preview">
                                             <div class="pfp-ring"></div>
-                                            <img src="../uploads/profiles/default.svg" class="pfp-img is-default" id="avatarPreview" alt="Profile preview" />
+                                            <img src="../uploads/profiles/default.svg" style="width: 100%;" class="p-0 pfp-img is-default" id="avatarPreview" alt="Profile preview" />
                                         </div>
                                         <span class="pfp-caption">Preview</span>
                                     </div>
@@ -118,9 +119,10 @@ session_start();
                                 </div>
                             </div>
                         </div>
-
-                        <button type="submit" class="cta">Enter Inkwave</button>
-
+                        <div class="form-btn d-flex gap-1">
+                            <button type="submit" class="cta w-50">Enter Inkwave</button>
+                            <button type="reset" class="cta w-50">Reset</button>
+                        </div>
                         <p class="alt">
                             Already have an account? <a href="./login_form.php">Sign in</a>
                         </p>

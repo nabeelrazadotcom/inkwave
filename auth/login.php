@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         require_once "../config/db.php";
 
         // Checking if Username is registered or not
-        $stmt = mysqli_prepare($db_connect, "SELECT username, password FROM users WHERE username=? LIMIT 1");
+        $stmt = mysqli_prepare($db_connect, "SELECT id, username, password FROM users WHERE username=? LIMIT 1");
         $stmt->bind_param("s", $username);
 
         if ($stmt->execute()) {
@@ -29,17 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['Loggedin'] = true;
                 $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
                 header("Location: ../dashboard/index.php");
                 exit();
+
             } else {
                 $_SESSION['Login_Err'] = "Incorrect username or password.";
                 header("Location: ./login_form.php");
                 exit();
+
             }
         } else {
             $_SESSION['Login_Err'] = "Something went wrong. Try again.";
             header("Location: ./login_form.php");
             exit();
+            
         }
     }
 }

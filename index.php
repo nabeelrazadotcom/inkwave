@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inkwave — Ideas Flow Here</title>
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
@@ -22,9 +25,7 @@
         <p class="entry-sub">A continuous stream of writing, thinking, and feeling.</p>
         <a href="#stream" class="entry-cta">
             Enter the stream
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <i class="bi bi-arrow-right"></i>
         </a>
         <div class="scroll-hint">
             <span>Scroll</span>
@@ -45,9 +46,7 @@
             </div>
             <a href="#" class="read-link">
                 Read essay
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+                <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </section>
