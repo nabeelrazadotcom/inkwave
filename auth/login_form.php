@@ -6,46 +6,49 @@ session_start();
 
 <head>
     <meta charset="UTF-8">
-    <title>Inkwave - Welcome Back</title>
+    <title>Inkwave — Welcome Back</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="iw-auth-login">
 
-    <div class="background"></div>
+    <div class="iw-bg-flow" aria-hidden="true"></div>
+    <div class="iw-bg-animated" aria-hidden="true"></div>
 
     <main class="container iw-auth-container py-5">
         <div class="row g-5 align-items-center min-vh-100 iw-auth-row">
-            <!-- Welcome Section -->
             <section class="col-lg-6 iw-auth-welcome">
                 <p class="iw-auth-kicker">Return to the page</p>
-                <h1>Welcome back.</h1>
-                <p class="iw-auth-brandline">A quieter desk, cleaner rhythm, and your unfinished sentences waiting exactly where you left them.</p>
+                <h1>Welcome back to your writing rhythm.</h1>
+                <p class="iw-auth-brandline">Clean publishing, calmer drafting, and your work waiting in the same place you left it.</p>
                 <p class="iw-auth-brand">Ink<em>wave</em></p>
 
                 <div class="iw-auth-notes" aria-hidden="true">
                     <div class="iw-auth-note">
                         <span class="iw-auth-note-label">Desk</span>
-                        <span class="iw-auth-note-value">Focused writing</span>
+                        <span class="iw-auth-note-value">Track drafts and published work</span>
                     </div>
                     <div class="iw-auth-note">
-                        <span class="iw-auth-note-label">Flow</span>
-                        <span class="iw-auth-note-value">Draft, refine, publish</span>
+                        <span class="iw-auth-note-label">Studio</span>
+                        <span class="iw-auth-note-value">Write inside a focused editor</span>
+                    </div>
+                    <div class="iw-auth-note">
+                        <span class="iw-auth-note-label">Design</span>
+                        <span class="iw-auth-note-value">Readable, publication-ready layouts</span>
                     </div>
                 </div>
             </section>
 
-            <!-- Login Form -->
             <section class="col-lg-5 ms-lg-auto">
                 <div class="iw-auth-panel">
                     <div class="iw-auth-panel-header">
                         <span class="iw-auth-panel-label">Sign in</span>
+                        <h2 class="iw-auth-panel-title">Continue writing</h2>
                     </div>
 
                     <?php if (!empty($_SESSION['Login_Err'])): ?>
@@ -76,7 +79,7 @@ session_start();
                         <button class="iw-btn-primary" type="submit">Continue Writing</button>
 
                         <p class="iw-auth-secondary">
-                            New to Inkwave? <a href="./register_form.php">Begin here</a>
+                            New to Inkwave? <a href="./register_form.php">Create your account</a>
                         </p>
                     </form>
                 </div>
@@ -84,7 +87,7 @@ session_start();
         </div>
     </main>
 
+    <script src="../assets/js/script.js"></script>
 </body>
-<script src="../assets/js/script.js"></script>
 
 </html>

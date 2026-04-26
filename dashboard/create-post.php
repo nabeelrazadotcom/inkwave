@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+if (empty($_SESSION['Loggedin'])) {
+    header("Location: ../auth/login_form.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,222 +14,222 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inkwave — Writing Studio</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
-<body class="iw-studio">
+<body class="iw-dashboard">
 
-    <!-- Background Effect -->
-    <div class="iw-bg-flow"></div>
+    <div class="iw-dashboard-backdrop" aria-hidden="true">
+        <div class="iw-dashboard-orb iw-dashboard-orb-a"></div>
+        <div class="iw-dashboard-orb iw-dashboard-orb-b"></div>
+        <div class="iw-dashboard-grid-glow"></div>
+    </div>
 
-    <div class="iw-studio-shell">
-        <!-- Studio Topbar -->
-        <header class="iw-studio-topbar" aria-label="Studio top bar">
-            <a class="iw-studio-brand" href="./index.php">
-                <span class="iw-studio-brand-ink">Ink</span><span class="iw-studio-brand-wave">wave</span>
-                <span class="iw-studio-brand-sub">Studio</span>
-            </a>
+    <div class="iw-dashboard-layout">
+        <?php include '../includes/sidebar.php'; ?>
 
-            <div class="iw-studio-actions" aria-label="Primary actions">
-                <button class="btn btn-outline-light btn-sm" type="button" data-soft-toast="Saved (UI demo).">
-                    <i class="bi bi-save"></i> Save draft
-                </button>
-                <button class="btn btn-primary btn-sm" type="button" data-soft-toast="Published (UI demo).">
-                    <i class="bi bi-check-lg"></i> Publish
-                </button>
+        <form action="add_post.php" method="post" class="iw-dashboard-main">
+            <header class="iw-studio-topbar" aria-label="Studio top bar">
+                <div>
+                    <div class="iw-dash-greeting">Studio</div>
+                    <h1 class="iw-dash-title mb-0">Shape your next story</h1>
+                </div>
+
+                <div class="iw-studio-actions">
+                    <button type="submit" value="draft" name="status" class="btn btn-outline-light">
+                        <i class="bi bi-save"></i>
+                        Save Draft
+                    </button>
+                    <button class="btn btn-primary" type="submit" value="publish" name="status">
+                        <i class="bi bi-send-check"></i>
+                        Publish
+                    </button>
+                </div>
+            </header>
+
+            <div class="iw-studio-layout">
+                <section class="iw-studio-page-wrap">
+                    <div class="iw-studio-page-head">
+                        <input class="iw-studio-title-input" name="title" id="iw-title" type="text" placeholder="Untitled story..." autocomplete="off" aria-label="Story title">
+                        <div class="iw-studio-meta-row">
+                            <span class="iw-studio-meta-pill" id="iw-status">Draft</span>
+                            <span>•</span>
+                            <span id="iw-count">0 words • 0 min read</span>
+                        </div>
+                    </div>
+
+                    <div class="iw-studio-page iw-studio-page-quill">
+                        <div class="iw-studio-gutter" aria-hidden="true"></div>
+                        <div id="iw-toolbar" class="iw-quill-toolbar">
+                            <span class="ql-formats">
+                                <select class="ql-header">
+                                    <option selected></option>
+                                    <option value="1"></option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                </select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-blockquote"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                                <button class="ql-link"></button>
+                            </span>
+                        </div>
+                        <div id="iw-editor" class="iw-studio-editor"></div>
+                        <input type="hidden" name="content" id="iw-content">
+                    </div>
+
+                    <div class="iw-studio-page-foot">
+                        <div class="iw-studio-foot-left">
+                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Write the first version fast. Refine the second version carefully.">
+                                Writing tip
+                            </button>
+                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Strong titles are clear first, clever second.">
+                                Title tip
+                            </button>
+                        </div>
+                        <div class="iw-studio-foot-right">
+                            <span class="iw-studio-foot-note">Quill editor enabled for cleaner formatting and previews.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="iw-studio-right-rail" aria-label="Preview and settings">
+                    <div class="iw-studio-rail-block">
+                        <div class="iw-studio-rail-title">Preview</div>
+                        <div class="iw-studio-preview">
+                            <div class="iw-studio-preview-title" id="preview-title">Untitled story</div>
+                            <div class="iw-studio-preview-body" id="preview-body">Your preview updates as you write.</div>
+                        </div>
+                    </div>
+
+                    <div class="iw-studio-rail-block">
+                        <div class="iw-studio-rail-title">Story settings</div>
+                        <div class="iw-studio-field">
+                            <label class="iw-studio-label" for="story-category">Category</label>
+                            <select id="story-category" name="category" class="iw-studio-select">
+                                <option value="Technology">Technology</option>
+                                <option value="Lifestyle">Lifestyle</option>
+                                <option value="Productivity">Productivity</option>
+                                <option value="Mindfulness">Mindfulness</option>
+                                <option value="Writing">Writing</option>
+                                <option value="Travel">Travel</option>
+                            </select>
+                        </div>
+                        <div class="iw-studio-field">
+                            <label class="iw-studio-label" for="story-tone">Tone</label>
+                            <select id="story-tone" class="iw-studio-select">
+                                <option>Reflective</option>
+                                <option>Sharp</option>
+                                <option>Warm</option>
+                                <option>Bold</option>
+                                <option>Professional</option>
+                            </select>
+                        </div>
+                        <div class="iw-studio-field">
+                            <label class="iw-studio-label" for="story-tags">Tags</label>
+                            <input id="story-tags" type="text" class="iw-studio-input" placeholder="essays, process, design">
+                        </div>
+                    </div>
+
+                    <div class="iw-studio-rail-block">
+                        <div class="iw-studio-rail-title">Publishing checklist</div>
+                        <div class="iw-status-list">
+                            <div class="iw-status-row">
+                                <span class="iw-status-label">Title</span>
+                                <strong id="check-title">Waiting</strong>
+                            </div>
+                            <div class="iw-status-row">
+                                <span class="iw-status-label">Content</span>
+                                <strong id="check-content">Waiting</strong>
+                            </div>
+                            <div class="iw-status-row">
+                                <span class="iw-status-label">Readiness</span>
+                                <strong id="check-ready">Start drafting</strong>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </div>
-        </header>
-
-        <!-- Studio Layout -->
-        <main class="iw-studio-layout" aria-label="Writing studio">
-            <!-- Left Rail - Tools -->
-            <aside class="iw-studio-left-rail" aria-label="Tools">
-                <div class="iw-studio-rail-block">
-                    <div class="iw-studio-rail-title">Tools</div>
-                    <div class="iw-studio-tool-row">
-                        <button class="iw-studio-chip" type="button" data-cmd="bold" title="Bold" aria-label="Bold">
-                            <i class="bi bi-type-bold"></i>
-                        </button>
-                        <button class="iw-studio-chip" type="button" data-cmd="italic" title="Italic" aria-label="Italic">
-                            <i class="bi bi-type-italic"></i>
-                        </button>
-                        <button class="iw-studio-chip" type="button" data-cmd="h1" title="Heading 1" aria-label="Heading 1">H1</button>
-                        <button class="iw-studio-chip" type="button" data-cmd="h2" title="Heading 2" aria-label="Heading 2">H2</button>
-                        <button class="iw-studio-chip" type="button" data-cmd="quote" title="Quote" aria-label="Quote">
-                            <i class="bi bi-chat-quote"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="iw-studio-rail-block">
-                    <div class="iw-studio-rail-title">Focus</div>
-                    <button class="iw-studio-focus-toggle" type="button" data-focus-toggle="1">Enter focus mode</button>
-                </div>
-
-                <div class="iw-studio-rail-block">
-                    <div class="iw-studio-rail-title">Ritual</div>
-                    <button class="iw-studio-ritual" type="button" data-soft-toast="Write 8 lines. No edits. No backspace.">Eight lines</button>
-                    <button class="iw-studio-ritual" type="button" data-soft-toast="Write the last sentence first. Then earn the beginning.">Backwards</button>
-                </div>
-            </aside>
-
-            <!-- Page/Editor Area -->
-            <section class="iw-studio-page-wrap" aria-label="Editor">
-                <div class="iw-studio-page-head">
-                    <input class="iw-studio-title-input" id="iw-title" type="text" placeholder="Untitled story…" autocomplete="off" />
-                    <div class="iw-studio-meta-row">
-                        <span class="iw-studio-meta-pill">Draft</span>
-                        <span class="iw-studio-meta-sep">•</span>
-                        <span class="iw-studio-meta-note" id="iw-count">0 words</span>
-                    </div>
-                </div>
-
-                <div class="iw-studio-page">
-                    <div class="iw-studio-gutter" aria-hidden="true"></div>
-                    <div class="iw-studio-editor" id="iw-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Start writing your story…"></div>
-                    <textarea class="iw-studio-canvas" id="iw-canvas" placeholder="Start writing your story..."></textarea>
-                </div>
-
-                <div class="iw-studio-page-foot">
-                    <button class="iw-studio-foot-action" type="button" data-soft-toast="Tip: Use short paragraphs. Let the white space breathe.">
-                        <i class="bi bi-lightbulb"></i> Writing tip
-                    </button>
-                    <button class="iw-studio-foot-action" type="button" data-soft-toast="Tip: Draft fast. Edit slow. Publish when calm.">
-                        <i class="bi bi-send"></i> Publishing tip
-                    </button>
-                </div>
-            </section>
-
-            <!-- Right Rail - Preview and Settings -->
-            <aside class="iw-studio-right-rail" aria-label="Preview and settings">
-                <div class="iw-studio-rail-block">
-                    <div class="iw-studio-rail-title">Preview</div>
-                    <div class="iw-studio-preview" id="iw-preview">
-                        <div class="iw-studio-preview-title">Preview</div>
-                        <div class="iw-studio-preview-body">Your words will appear here as you write.</div>
-                    </div>
-                </div>
-
-                <div class="iw-studio-rail-block">
-                    <div class="iw-studio-rail-title">Story settings</div>
-                    <div class="iw-studio-field">
-                        <span class="iw-studio-label">Tone</span>
-                        <select class="iw-studio-select" aria-label="Tone">
-                            <option>Reflective</option>
-                            <option>Sharp</option>
-                            <option>Warm</option>
-                            <option>Bold</option>
-                        </select>
-                    </div>
-                    <div class="iw-studio-field">
-                        <span class="iw-studio-label">Visibility</span>
-                        <select class="iw-studio-select" aria-label="Visibility">
-                            <option>Private draft</option>
-                            <option>Public</option>
-                        </select>
-                    </div>
-                </div>
-            </aside>
-        </main>
+        </form>
     </div>
 
     <div class="iw-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
     <script>
         const toast = document.querySelector('.iw-toast');
         let toastTimer = null;
 
-        function softToast(msg) {
+        function softToast(message) {
             if (!toast) return;
-            toast.textContent = msg || '';
+            toast.textContent = message;
             toast.classList.add('show');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
         }
 
-        document.querySelectorAll('[data-soft-toast]').forEach((el) => {
-            el.addEventListener('click', () => softToast(el.getAttribute('data-soft-toast')));
+        document.querySelectorAll('[data-soft-toast]').forEach((button) => {
+            button.addEventListener('click', () => softToast(button.dataset.softToast || ''));
         });
 
-        const editor = document.getElementById('iw-editor');
-        const canvas = document.getElementById('iw-canvas');
-        const title = document.getElementById('iw-title');
+        const quill = new Quill('#iw-editor', {
+            modules: { toolbar: '#iw-toolbar' },
+            placeholder: 'Start writing your story...',
+            theme: 'snow'
+        });
+
+        const titleInput = document.getElementById('iw-title');
+        const contentInput = document.getElementById('iw-content');
         const count = document.getElementById('iw-count');
-        const preview = document.getElementById('iw-preview');
+        const previewTitle = document.getElementById('preview-title');
+        const previewBody = document.getElementById('preview-body');
+        const status = document.getElementById('iw-status');
+        const checkTitle = document.getElementById('check-title');
+        const checkContent = document.getElementById('check-content');
+        const checkReady = document.getElementById('check-ready');
+        let saveTimer = null;
 
-        function getText() {
-            return (editor?.innerText || '').replace(/\s+/g, ' ').trim();
+        function refreshStudio() {
+            const text = quill.getText().trim();
+            const html = quill.root.innerHTML;
+            const words = text ? text.split(/\s+/).length : 0;
+            const minutes = words ? Math.max(1, Math.ceil(words / 200)) : 0;
+            const storyTitle = titleInput.value.trim() || 'Untitled story';
+
+            contentInput.value = html === '<p><br></p>' ? '' : html;
+            count.textContent = `${words} words • ${minutes} min read`;
+            previewTitle.textContent = storyTitle;
+            previewBody.textContent = text || 'Your preview updates as you write.';
+            checkTitle.textContent = titleInput.value.trim() ? 'Ready' : 'Waiting';
+            checkContent.textContent = words > 30 ? 'Ready' : 'Needs more';
+            checkReady.textContent = titleInput.value.trim() && words > 30 ? 'Good to publish' : 'Keep drafting';
+
+            status.textContent = 'Saving';
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                status.textContent = 'Saved';
+            }, 700);
         }
 
-        function updateWordCount() {
-            if (!count) return;
-            const t = getText();
-            const words = t ? t.split(' ').length : 0;
-            count.textContent = `${words} word${words === 1 ? '' : 's'}`;
-        }
-
-        function updatePreview() {
-            if (!preview) return;
-            const pTitle = preview.querySelector('.iw-studio-preview-title');
-            const pBody = preview.querySelector('.iw-studio-preview-body');
-            if (pTitle) pTitle.textContent = title?.value?.trim() || 'Untitled story';
-            if (pBody) pBody.textContent = getText() || 'Your words will appear here as you write.';
-        }
-
-        function syncHiddenTextarea() {
-            if (!canvas) return;
-            canvas.value = editor?.innerText || '';
-        }
-
-        function refresh() {
-            syncHiddenTextarea();
-            updateWordCount();
-            updatePreview();
-        }
-
-        if (editor) editor.addEventListener('input', refresh);
-        if (title) title.addEventListener('input', refresh);
-        refresh();
-
-        // Formatting chips (minimal + safe)
-        function wrapSelection(prefix, suffix) {
-            const sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0) return;
-            const range = sel.getRangeAt(0);
-            if (!editor || !editor.contains(range.commonAncestorContainer)) return;
-            const text = sel.toString();
-            if (!text) return;
-            range.deleteContents();
-            range.insertNode(document.createTextNode(`${prefix}${text}${suffix}`));
-            refresh();
-        }
-
-        document.querySelectorAll('[data-cmd]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const cmd = btn.getAttribute('data-cmd');
-                if (cmd === 'bold') return wrapSelection('**', '**');
-                if (cmd === 'italic') return wrapSelection('*', '*');
-                if (cmd === 'h1') return wrapSelection('\\n# ', '');
-                if (cmd === 'h2') return wrapSelection('\\n## ', '');
-                if (cmd === 'quote') return wrapSelection('\\n> ', '');
-            });
+        quill.on('text-change', refreshStudio);
+        titleInput.addEventListener('input', refreshStudio);
+        document.querySelector('form').addEventListener('submit', () => {
+            contentInput.value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
         });
 
-        // Focus mode
-        const focusBtn = document.querySelector('[data-focus-toggle]');
-        if (focusBtn) {
-            focusBtn.addEventListener('click', () => {
-                document.body.classList.toggle('focus-mode');
-                focusBtn.textContent = document.body.classList.contains('focus-mode') ? 'Exit focus mode' : 'Enter focus mode';
-            });
-        }
+        refreshStudio();
     </script>
-
 </body>
 
 </html>
