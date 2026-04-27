@@ -1,3 +1,5 @@
 .openclaude-profile.json
-./assets/bs-css
-./assets/bs-js
+
+# all bootstrap folders
+assets/bs-css/
+assets/bs-js/
