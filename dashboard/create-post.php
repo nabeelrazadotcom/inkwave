@@ -5,7 +5,26 @@ if (empty($_SESSION['Loggedin'])) {
     header("Location: ../auth/login_form.php");
     exit();
 }
+
+// Connecting Database
+require_once '../config/db.php';
+if (isset($_SESSION['DatabaseErr'])) {
+    $dbError = $_SESSION['DatabaseErr'];
+    unset($_SESSION['DatabaseErr']);
+}
+
+// Fetch categories for dropdown
+try {
+    $stmt = mysqli_prepare($db_connect, "SELECT * FROM categories ORDER BY name ASC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $categories = $result->fetch_all(MYSQLI_ASSOC);
+} catch (Exception $e) {
+    $dbError = $e->getMessage();
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,7 +33,7 @@ if (empty($_SESSION['Loggedin'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inkwave — Writing Studio</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/bs-css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
@@ -32,7 +51,8 @@ if (empty($_SESSION['Loggedin'])) {
     <div class="iw-dashboard-layout">
         <?php include '../includes/sidebar.php'; ?>
 
-        <form action="add_post.php" method="post" class="iw-dashboard-main">
+        <form action="add_post.php" method="post" class="iw-dashboard-main" enctype="multipart/form-data">
+            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
             <header class="iw-studio-topbar" aria-label="Studio top bar">
                 <div>
                     <div class="iw-dash-greeting">Studio</div>
@@ -40,6 +60,26 @@ if (empty($_SESSION['Loggedin'])) {
                 </div>
 
                 <div class="iw-studio-actions">
+                    <?php if (!empty($_SESSION['PostErr'])): ?>
+
+                        <div id="alert" class="alert alert-warning d-flex px-2 py-1 gap-1 my-2 align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <?= $_SESSION['PostErr'];
+                                unset($_SESSION['PostErr']); ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($_SESSION['PostSucc'])): ?>
+                        <div id="alert" class="alert alert-success d-flex gap-1 px-2 py-1 mt-2 align-items-center" role="alert">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <div>
+                                <?= $_SESSION['PostSucc'];
+                                unset($_SESSION['PostSucc']); ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     <button type="submit" value="draft" name="status" class="btn btn-outline-light">
                         <i class="bi bi-save"></i>
                         Save Draft
@@ -104,28 +144,41 @@ if (empty($_SESSION['Loggedin'])) {
                     </div>
                 </section>
 
-                <aside class="iw-studio-right-rail" aria-label="Preview and settings">
+                <aside class="iw-studio-right-rail">
                     <div class="iw-studio-rail-block">
-                        <div class="iw-studio-rail-title">Preview</div>
-                        <div class="iw-studio-preview">
-                            <div class="iw-studio-preview-title" id="preview-title">Untitled story</div>
-                            <div class="iw-studio-preview-body" id="preview-body">Your preview updates as you write.</div>
+                        <div class="iw-studio-rail-title">Image</div>
+                        <div class="iw-studio-preview d-flex justify-content-center">
+                            <div class="d-flex flex-column align-items-center">
+                                <i id="upload-icon" class="bi bi-image fs-1"></i>
+                                <label for="banner" role="button" id="banner-label">
+                                    <span id="upload-text" class="d-block">Select Image</span>
+                                </label>
+                                <img id="bannerPreview">
+                                <p id="bannerName" style="display: none; margin-bottom: 0.2rem; max-width: 20ch; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; align-self: flex-start;"></p>
+                                <p id="bannerSize" style="display: none; margin-bottom: 0.2rem; align-self: flex-start;"></p>
+                            </div>
+                            <input hidden type="file" id="banner" accept="image/*" name="banner">
                         </div>
                     </div>
 
                     <div class="iw-studio-rail-block">
                         <div class="iw-studio-rail-title">Story settings</div>
+
+
                         <div class="iw-studio-field">
                             <label class="iw-studio-label" for="story-category">Category</label>
                             <select id="story-category" name="category" class="iw-studio-select">
-                                <option value="Technology">Technology</option>
-                                <option value="Lifestyle">Lifestyle</option>
-                                <option value="Productivity">Productivity</option>
-                                <option value="Mindfulness">Mindfulness</option>
-                                <option value="Writing">Writing</option>
-                                <option value="Travel">Travel</option>
+                                <option style="background-color: #151d2f; color: #2f2f2f;" selected disabled>Select Category</option>
+                                <?php foreach ($categories as $cat) { ?>
+                                    <option style="background-color: #111827; color: #fff" value="<?= htmlspecialchars($cat['id']) ?>"><?= htmlspecialchars($cat['name']) ?>
+
+                                    </option>
+
+                                <?php } ?>
                             </select>
                         </div>
+
+
                         <div class="iw-studio-field">
                             <label class="iw-studio-label" for="story-tone">Tone</label>
                             <select id="story-tone" class="iw-studio-select">
@@ -184,7 +237,9 @@ if (empty($_SESSION['Loggedin'])) {
         });
 
         const quill = new Quill('#iw-editor', {
-            modules: { toolbar: '#iw-toolbar' },
+            modules: {
+                toolbar: '#iw-toolbar'
+            },
             placeholder: 'Start writing your story...',
             theme: 'snow'
         });
@@ -229,6 +284,27 @@ if (empty($_SESSION['Loggedin'])) {
         });
 
         refreshStudio();
+    </script>
+    <script>
+        document.getElementById('banner').addEventListener('change', function() {
+            let file = this.files[0];
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('bannerName').textContent = 'Selected: ' + file.name;
+                document.getElementById('bannerSize').textContent = 'Size: ' + (file.size / 1000000).toFixed(2) + ' MB';
+                document.getElementById('bannerSize').style.display = 'block';
+                document.getElementById('bannerName').style.display = 'block';
+
+                let reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('upload-icon').style.display = 'none';
+                    document.getElementById('upload-text').innerText = 'Change Image';
+                    document.getElementById('bannerPreview').src = e.target.result;
+                    document.getElementById('bannerPreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 

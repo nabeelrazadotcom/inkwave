@@ -8,7 +8,7 @@
     <title>Add Category — Inkwave</title>
     <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/bs-css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
@@ -44,12 +44,12 @@
 
             <section class="col-lg-5 ms-lg-auto">
                 <div class="iw-auth-panel">
-                    <div class="iw-auth-panel-header">
+                    <div class="iw-auth-panel-header m-0">
                         <span class="iw-auth-panel-label">New category</span>
                         <h2 class="iw-auth-panel-title">Category details</h2>
                         <?php if (!empty($_SESSION['categoryErr'])): ?>
 
-                            <div class="alert alert-warning d-flex px-2 py-1 gap-1 align-items-center" role="alert">
+                            <div class="alert alert-warning d-flex px-2 py-1 gap-1 my-2 align-items-center" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill"></i>
                                 <div>
                                     <?= $_SESSION['categoryErr'];
@@ -59,7 +59,7 @@
                         <?php endif; ?>
 
                         <?php if (!empty($_SESSION['categorySucc'])): ?>
-                            <div class="alert alert-success d-flex gap-1 px-2 py-1 align-items-center" role="alert">
+                            <div class="alert alert-success d-flex gap-1 px-2 py-1 mt-2 align-items-center" role="alert">
                                 <i class="bi bi-check-circle-fill"></i>
                                 <div>
                                     <?= $_SESSION['categorySucc'];
@@ -69,7 +69,7 @@
                         <?php endif; ?>
                     </div>
 
-                    <form class="iw-login-form" action="./addCategory.php" method="post">
+                    <form class="iw-login-form mt-3" action="./addCategory.php" method="post">
                         <div class="iw-form-group">
                             <input class="iw-form-input" name="name" type="text" required>
                             <label class="iw-form-label">Category Name</label>
@@ -91,6 +91,7 @@
         </div>
     </main>
     <script src="./assets/js/script.js"></script>
+    <script src="./assets/bs-js/bootstrap.min.js"></script>
 </body>
 
 </html>
