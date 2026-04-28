@@ -49,7 +49,7 @@
                         <h2 class="iw-auth-panel-title">Category details</h2>
                         <?php if (!empty($_SESSION['categoryErr'])): ?>
 
-                            <div class="alert alert-warning d-flex px-2 py-1 gap-1 my-2 align-items-center" role="alert">
+                            <div class="alert alert-warning d-flex px-2 py-1 gap-1 my-2 align-self-center align-items-center" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill"></i>
                                 <div>
                                     <?= $_SESSION['categoryErr'];
@@ -59,7 +59,7 @@
                         <?php endif; ?>
 
                         <?php if (!empty($_SESSION['categorySucc'])): ?>
-                            <div class="alert alert-success d-flex gap-1 px-2 py-1 mt-2 align-items-center" role="alert">
+                            <div class="alert alert-success d-flex gap-1 px-2 py-1 mt-2 align-self-center align-items-center" role="alert">
                                 <i class="bi bi-check-circle-fill"></i>
                                 <div>
                                     <?= $_SESSION['categorySucc'];

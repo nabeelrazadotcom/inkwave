@@ -25,7 +25,7 @@ function iwSidebarActive(string $page, array $matches): string
                 <span class="iw-nav-item-text">Desk</span>
             </a>
             <a class="iw-nav-item <?= iwSidebarActive($sidebarPage, ['create-post.php', 'add_post.php', 'edit-post.php']) ?>" href="create-post.php">
-                <i class="bi bi-quill-pen"></i>
+                <i class="bi bi-pen"></i>
                 <span class="iw-nav-item-text">Studio</span>
             </a>
             <a class="iw-nav-item <?= iwSidebarActive($sidebarPage, ['posts.php']) ?>" href="posts.php">

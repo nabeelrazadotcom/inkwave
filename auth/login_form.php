@@ -1,5 +1,7 @@
 <?php
 session_start();
+$oldUsername = $_SESSION['login_old_username'] ?? '';
+unset($_SESSION['login_old_username']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,13 +69,16 @@ session_start();
 
                     <form class="iw-login-form" method="post" action="./login.php" novalidate>
                         <div class="iw-form-group">
-                            <input class="iw-form-input" name="username" type="text" required>
+                            <input class="iw-form-input" name="username" type="text" required value="<?= htmlspecialchars($oldUsername) ?>">
                             <label class="iw-form-label">Username</label>
                         </div>
 
-                        <div class="iw-form-group">
-                            <input class="iw-form-input" name="password" type="password" required>
-                            <label class="iw-form-label">Password</label>
+                        <div class="iw-form-group iw-form-group-password">
+                            <input class="iw-form-input" id="loginPassword" name="password" type="password" required>
+                            <label class="iw-form-label" for="loginPassword">Password</label>
+                            <button class="iw-password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
 
                         <button class="iw-btn-primary" type="submit">Continue Writing</button>
@@ -88,6 +93,19 @@ session_start();
     </main>
 
     <script src="../assets/js/script.js"></script>
+    <script>
+        document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const target = document.getElementById(button.dataset.passwordToggle);
+                if (!target) return;
+
+                const isPassword = target.type === 'password';
+                target.type = isPassword ? 'text' : 'password';
+                button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                button.innerHTML = isPassword ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+            });
+        });
+    </script>
 </body>
 
 </html>

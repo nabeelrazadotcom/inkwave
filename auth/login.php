@@ -3,6 +3,7 @@
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $_SESSION['login_old_username'] = trim($_POST['username'] ?? '');
     if (!isset($_POST['username']) || empty($_POST['username'])) {
         $_SESSION['Login_Err'] = "Enter Your Username";
         header("Location: login_form.php");
@@ -30,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['Loggedin'] = true;
                 $_SESSION['user_id'] = (int) $user['id'];
                 $_SESSION['username'] = $user['username'];
+                unset($_SESSION['login_old_username']);
                 header("Location: ../dashboard/index.php");
                 exit();
 

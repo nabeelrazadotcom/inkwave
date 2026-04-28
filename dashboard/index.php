@@ -6,29 +6,20 @@ if (empty($_SESSION['Loggedin'])) {
     exit();
 }
 
+require_once '../config/db.php';
+
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
 $username = $_SESSION['username'] ?? 'Writer';
 $firstName = trim(explode(' ', $username)[0]);
 
 $stats = [
-    'total_posts' => 12,
-    'draft_posts' => 5,
-    'published_posts' => 7,
-    'categories_used' => 4,
-    'latest_activity' => '2 hours ago',
-    'total_views' => 1240,
+    'total_posts' => 0,
+    'draft_posts' => 0,
+    'published_posts' => 0,
+    'categories_used' => 0,
 ];
-
-$recentPosts = [
-    ['id' => 1, 'title' => 'The Art of Slow Living', 'status' => 'published', 'category_name' => 'Lifestyle', 'updated_at' => '2 hours ago', 'view_count' => 234],
-    ['id' => 2, 'title' => 'Morning Routines That Work', 'status' => 'draft', 'category_name' => 'Productivity', 'updated_at' => '1 day ago', 'view_count' => 0],
-    ['id' => 3, 'title' => 'Finding Peace in Chaos', 'status' => 'published', 'category_name' => 'Mindfulness', 'updated_at' => '3 days ago', 'view_count' => 456],
-    ['id' => 4, 'title' => 'The Writer\'s Block', 'status' => 'draft', 'category_name' => 'Writing', 'updated_at' => '5 days ago', 'view_count' => 0],
-];
-
-$publishRate = 58;
-$weeklyTarget = 6;
-$weeklyProgress = 4;
+$recentPosts = [];
+$dbWarning = null;
 
 function iwMetricLabel(int $value, string $singular, string $plural): string
 {
@@ -37,18 +28,24 @@ function iwMetricLabel(int $value, string $singular, string $plural): string
 
 function iwRelativeTime(?string $timestamp): string
 {
-    return $timestamp ?: 'No activity yet';
-}
+    if (!$timestamp) {
+        return 'No activity yet';
+    }
 
-function iwFormatNumber(int $num): string
-{
-    if ($num >= 1000000) {
-        return round($num / 1000000, 1) . 'M';
+    $seconds = time() - strtotime($timestamp);
+    if ($seconds < 60) {
+        return 'Just now';
     }
-    if ($num >= 1000) {
-        return round($num / 1000, 1) . 'K';
+    if ($seconds < 3600) {
+        return floor($seconds / 60) . ' min ago';
     }
-    return (string) $num;
+    if ($seconds < 86400) {
+        return floor($seconds / 3600) . ' hours ago';
+    }
+    if ($seconds < 604800) {
+        return floor($seconds / 86400) . ' days ago';
+    }
+    return date('M j, Y', strtotime($timestamp));
 }
 
 function iwGetGreeting(): string
@@ -62,6 +59,50 @@ function iwGetGreeting(): string
     }
     return 'Good evening';
 }
+
+try {
+    $statsStmt = mysqli_prepare(
+        $db_connect,
+        "SELECT
+            COUNT(*) AS total_posts,
+            SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft_posts,
+            SUM(CASE WHEN status = 'publish' THEN 1 ELSE 0 END) AS published_posts,
+            COUNT(DISTINCT category_id) AS categories_used
+         FROM posts
+         WHERE user_id = ?"
+    );
+    $statsStmt->bind_param("i", $userId);
+    $statsStmt->execute();
+    $statsResult = $statsStmt->get_result()->fetch_assoc();
+
+    if ($statsResult) {
+        $stats = [
+            'total_posts' => (int) ($statsResult['total_posts'] ?? 0),
+            'draft_posts' => (int) ($statsResult['draft_posts'] ?? 0),
+            'published_posts' => (int) ($statsResult['published_posts'] ?? 0),
+            'categories_used' => (int) ($statsResult['categories_used'] ?? 0),
+        ];
+    }
+
+    $recentStmt = mysqli_prepare(
+        $db_connect,
+        "SELECT posts.id, posts.title, posts.status, categories.name AS category_name, posts.created_at, posts.updated_at
+         FROM posts
+         LEFT JOIN categories ON posts.category_id = categories.id
+         WHERE posts.user_id = ?
+         ORDER BY COALESCE(posts.updated_at, posts.created_at) DESC
+         LIMIT 5"
+    );
+    $recentStmt->bind_param("i", $userId);
+    $recentStmt->execute();
+    $recentPosts = $recentStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+} catch (Exception $e) {
+    $dbWarning = $e->getMessage();
+}
+
+$publishRate = $stats['total_posts'] > 0 ? (int) round(($stats['published_posts'] / $stats['total_posts']) * 100) : 0;
+$weeklyTarget = 4;
+$weeklyProgress = min($weeklyTarget, $stats['published_posts'] + ($stats['draft_posts'] > 0 ? 1 : 0));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +134,7 @@ function iwGetGreeting(): string
                 <div class="iw-dash-header-left">
                     <div class="iw-dash-greeting"><?= iwGetGreeting() ?>, <?= htmlspecialchars($firstName) ?></div>
                     <h1 class="iw-dash-title">Your writing desk</h1>
-                    <p class="iw-dash-subtitle">A cleaner view of drafts, activity, and what deserves your attention next.</p>
+                    <p class="iw-dash-subtitle">A clearer home for your drafts, published work, and the next action that deserves your attention.</p>
                 </div>
                 <div class="iw-dash-header-right">
                     <a href="./create-post.php" class="btn btn-primary">
@@ -102,6 +143,12 @@ function iwGetGreeting(): string
                     </a>
                 </div>
             </header>
+
+            <?php if (!empty($dbWarning)): ?>
+                <div class="alert alert-warning iw-inline-alert" role="alert">
+                    <?= htmlspecialchars($dbWarning) ?>
+                </div>
+            <?php endif; ?>
 
             <section class="iw-stats-grid mb-4">
                 <article class="iw-stat-card iw-stat-card-primary">
@@ -139,12 +186,12 @@ function iwGetGreeting(): string
 
                 <article class="iw-stat-card">
                     <div class="iw-stat-icon iw-stat-icon-views">
-                        <i class="bi bi-eye"></i>
+                        <i class="bi bi-grid"></i>
                     </div>
                     <div class="iw-stat-content">
-                        <div class="iw-stat-value"><?= iwFormatNumber($stats['total_views']) ?></div>
-                        <div class="iw-stat-label">Total Views</div>
-                        <div class="iw-stat-meta">Across your published work</div>
+                        <div class="iw-stat-value"><?= $stats['categories_used'] ?></div>
+                        <div class="iw-stat-label">Categories Used</div>
+                        <div class="iw-stat-meta"><?= iwMetricLabel($stats['categories_used'], 'active category', 'active categories') ?></div>
                     </div>
                 </article>
             </section>
@@ -154,31 +201,36 @@ function iwGetGreeting(): string
                     <section class="iw-dash-section h-100">
                         <div class="iw-dash-section-header">
                             <h2 class="iw-dash-section-title">Recent writing</h2>
-                            <a href="./posts.php?id=<?= $userId ?>" class="iw-dash-section-link">View all</a>
+                            <a href="./posts.php" class="iw-dash-section-link">View all</a>
                         </div>
 
-                        <div class="iw-posts-list">
-                            <?php foreach ($recentPosts as $post): ?>
-                                <a class="iw-post-item" href="./edit-post.php?id=<?= $post['id'] ?>">
-                                    <div class="iw-post-item-status <?= $post['status'] === 'published' ? 'is-published' : 'is-draft' ?>"></div>
-                                    <div class="iw-post-item-content">
-                                        <div class="iw-post-item-title"><?= htmlspecialchars($post['title']) ?></div>
-                                        <div class="iw-post-item-meta">
-                                            <span><?= htmlspecialchars($post['category_name']) ?></span>
-                                            <span class="iw-post-item-dot">•</span>
-                                            <span><?= iwRelativeTime($post['updated_at']) ?></span>
-                                            <?php if (!empty($post['view_count'])): ?>
+                        <?php if (!empty($recentPosts)): ?>
+                            <div class="iw-posts-list">
+                                <?php foreach ($recentPosts as $post): ?>
+                                    <?php $activityDate = !empty($post['updated_at']) ? $post['updated_at'] : $post['created_at']; ?>
+                                    <a class="iw-post-item" href="./edit-post.php?id=<?= (int) $post['id'] ?>">
+                                        <div class="iw-post-item-status <?= $post['status'] === 'publish' ? 'is-published' : 'is-draft' ?>"></div>
+                                        <div class="iw-post-item-content">
+                                            <div class="iw-post-item-title"><?= htmlspecialchars($post['title']) ?></div>
+                                            <div class="iw-post-item-meta">
+                                                <span><?= htmlspecialchars($post['category_name'] ?? 'Uncategorized') ?></span>
                                                 <span class="iw-post-item-dot">•</span>
-                                                <span><?= iwFormatNumber((int) $post['view_count']) ?> views</span>
-                                            <?php endif; ?>
+                                                <span><?= iwRelativeTime($activityDate) ?></span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="iw-post-item-arrow">
-                                        <i class="bi bi-chevron-right"></i>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
+                                        <div class="iw-post-item-arrow">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="iw-empty-state">
+                                <div class="iw-empty-state-icon"><i class="bi bi-feather"></i></div>
+                                <h2 class="iw-empty-state-title">No writing yet</h2>
+                                <p class="iw-empty-state-text">Open the studio and create your first story. It will appear here as soon as you save it.</p>
+                            </div>
+                        <?php endif; ?>
                     </section>
                 </div>
 
@@ -186,7 +238,7 @@ function iwGetGreeting(): string
                     <div class="d-grid gap-4">
                         <section class="iw-dash-section">
                             <div class="iw-dash-section-header mb-3">
-                                <h2 class="iw-dash-section-title">Weekly goal</h2>
+                                <h2 class="iw-dash-section-title">Weekly rhythm</h2>
                                 <span class="iw-dash-section-badge"><?= $weeklyProgress ?>/<?= $weeklyTarget ?></span>
                             </div>
                             <div class="iw-goal-card">
@@ -197,7 +249,9 @@ function iwGetGreeting(): string
                                         </div>
                                     <?php endfor; ?>
                                 </div>
-                                <p class="iw-goal-text"><?= $weeklyTarget - $weeklyProgress ?> more pieces to hit your weekly target.</p>
+                                <p class="iw-goal-text">
+                                    <?= max(0, $weeklyTarget - $weeklyProgress) ?> more sessions to hit this week’s writing target.
+                                </p>
                             </div>
                         </section>
 
@@ -207,16 +261,16 @@ function iwGetGreeting(): string
                             </div>
                             <div class="iw-status-list">
                                 <div class="iw-status-row">
-                                    <span class="iw-status-label">Last activity</span>
-                                    <strong><?= htmlspecialchars($stats['latest_activity']) ?></strong>
+                                    <span class="iw-status-label">Published stories</span>
+                                    <strong><?= $stats['published_posts'] ?></strong>
                                 </div>
                                 <div class="iw-status-row">
-                                    <span class="iw-status-label">Categories used</span>
-                                    <strong><?= (int) $stats['categories_used'] ?></strong>
+                                    <span class="iw-status-label">Drafts waiting</span>
+                                    <strong><?= $stats['draft_posts'] ?></strong>
                                 </div>
                                 <div class="iw-status-row">
                                     <span class="iw-status-label">Recommended next step</span>
-                                    <strong>Finish a draft and schedule a revision pass</strong>
+                                    <strong><?= $stats['draft_posts'] > 0 ? 'Pick one draft and finish the next revision pass' : 'Start a fresh draft in the studio' ?></strong>
                                 </div>
                             </div>
                         </section>

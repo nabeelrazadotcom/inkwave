@@ -6,25 +6,26 @@ if (empty($_SESSION['Loggedin'])) {
     exit();
 }
 
-// Connecting Database
 require_once '../config/db.php';
-if (isset($_SESSION['DatabaseErr'])) {
-    $dbError = $_SESSION['DatabaseErr'];
-    unset($_SESSION['DatabaseErr']);
-}
 
-// Fetch categories for dropdown
+$dbError = null;
+$categories = [];
+$formData = $_SESSION['create_post_form_data'] ?? [];
+
 try {
-    $stmt = mysqli_prepare($db_connect, "SELECT * FROM categories ORDER BY name ASC");
+    $stmt = mysqli_prepare($db_connect, "SELECT id, name FROM categories ORDER BY name ASC");
     $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 } catch (Exception $e) {
     $dbError = $e->getMessage();
 }
 
-?>
+$titleValue = trim((string) ($formData['title'] ?? ''));
+$contentValue = (string) ($formData['content'] ?? '');
+$categoryValue = isset($formData['category_id']) ? (int) $formData['category_id'] : 0;
 
+unset($_SESSION['create_post_form_data']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -52,35 +53,22 @@ try {
         <?php include '../includes/sidebar.php'; ?>
 
         <form action="add_post.php" method="post" class="iw-dashboard-main" enctype="multipart/form-data">
-            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
-            <header class="iw-studio-topbar" aria-label="Studio top bar">
-                <div>
+            <input type="hidden" name="user_id" value="<?= (int) $_SESSION['user_id'] ?>">
+            <input type="hidden" name="content" id="iw-content">
+
+            <header class="iw-studio-topbar iw-dash-header" aria-label="Studio top bar">
+                <div class="iw-dash-header-left">
                     <div class="iw-dash-greeting">Studio</div>
-                    <h1 class="iw-dash-title mb-0">Shape your next story</h1>
+                    <h1 class="iw-dash-title mb-0">Create a story worth reading</h1>
+                    <p class="iw-dash-subtitle">Draft clearly, preview instantly, and keep every publishing decision visible in one place.</p>
                 </div>
 
-                <div class="iw-studio-actions">
-                    <?php if (!empty($_SESSION['PostErr'])): ?>
-
-                        <div id="alert" class="alert alert-warning d-flex px-2 py-1 gap-1 my-2 align-items-center" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <div>
-                                <?= $_SESSION['PostErr'];
-                                unset($_SESSION['PostErr']); ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if (!empty($_SESSION['PostSucc'])): ?>
-                        <div id="alert" class="alert alert-success d-flex gap-1 px-2 py-1 mt-2 align-items-center" role="alert">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <div>
-                                <?= $_SESSION['PostSucc'];
-                                unset($_SESSION['PostSucc']); ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                    <button type="submit" value="draft" name="status" class="btn btn-outline-light">
+                <div class="iw-dash-header-right iw-studio-actions">
+                    <a href="./posts.php" class="btn btn-outline-light">
+                        <i class="bi bi-journal-richtext"></i>
+                        View Posts
+                    </a>
+                    <button class="btn btn-outline-light" type="submit" value="draft" name="status">
                         <i class="bi bi-save"></i>
                         Save Draft
                     </button>
@@ -91,14 +79,45 @@ try {
                 </div>
             </header>
 
+            <?php if (!empty($dbError)): ?>
+                <div class="alert alert-warning iw-inline-alert" role="alert">
+                    <?= htmlspecialchars($dbError) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['PostErr'])): ?>
+                <div class="alert alert-warning iw-inline-alert" role="alert">
+                    <?= htmlspecialchars($_SESSION['PostErr']) ?>
+                </div>
+                <?php unset($_SESSION['PostErr']); ?>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['PostSucc'])): ?>
+                <div class="alert alert-success iw-inline-alert" role="alert">
+                    <?= htmlspecialchars($_SESSION['PostSucc']) ?>
+                </div>
+                <?php unset($_SESSION['PostSucc']); ?>
+            <?php endif; ?>
+
             <div class="iw-studio-layout">
                 <section class="iw-studio-page-wrap">
                     <div class="iw-studio-page-head">
-                        <input class="iw-studio-title-input" name="title" id="iw-title" type="text" placeholder="Untitled story..." autocomplete="off" aria-label="Story title">
+                        <input
+                            class="iw-studio-title-input"
+                            name="title"
+                            id="iw-title"
+                            type="text"
+                            placeholder="Give your story a strong, clear title"
+                            autocomplete="off"
+                            aria-label="Story title"
+                            value="<?= htmlspecialchars($titleValue) ?>">
+
                         <div class="iw-studio-meta-row">
                             <span class="iw-studio-meta-pill" id="iw-status">Draft</span>
                             <span>•</span>
                             <span id="iw-count">0 words • 0 min read</span>
+                            <span>•</span>
+                            <span id="iw-completion">Start with a headline and opening paragraph</span>
                         </div>
                     </div>
 
@@ -110,88 +129,87 @@ try {
                                     <option selected></option>
                                     <option value="1"></option>
                                     <option value="2"></option>
-                                    <option value="3"></option>
                                 </select>
                             </span>
                             <span class="ql-formats">
-                                <button class="ql-bold"></button>
-                                <button class="ql-italic"></button>
-                                <button class="ql-underline"></button>
-                                <button class="ql-blockquote"></button>
+                                <button class="ql-bold" aria-label="Bold"></button>
+                                <button class="ql-italic" aria-label="Italic"></button>
+                                <button class="ql-underline" aria-label="Underline"></button>
                             </span>
                             <span class="ql-formats">
-                                <button class="ql-list" value="ordered"></button>
-                                <button class="ql-list" value="bullet"></button>
-                                <button class="ql-link"></button>
+                                <button class="ql-list" value="ordered" aria-label="Numbered list"></button>
+                                <button class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+                                <button class="ql-blockquote" aria-label="Block quote"></button>
+                                <button class="ql-link" aria-label="Add link"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-clean" aria-label="Clear formatting"></button>
                             </span>
                         </div>
                         <div id="iw-editor" class="iw-studio-editor"></div>
-                        <input type="hidden" name="content" id="iw-content">
                     </div>
 
                     <div class="iw-studio-page-foot">
                         <div class="iw-studio-foot-left">
-                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Write the first version fast. Refine the second version carefully.">
-                                Writing tip
+                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Lead with a simple first paragraph. Readers should know what the story is about immediately.">
+                                Opening tip
                             </button>
-                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Strong titles are clear first, clever second.">
-                                Title tip
+                            <button class="iw-studio-foot-action" type="button" data-soft-toast="Use headings to break long pieces into clear sections.">
+                                Structure tip
+                            </button>
+                            <button class="iw-studio-foot-action" type="button" data-soft-toast="If you can remove a sentence without losing meaning, the draft is getting sharper.">
+                                Editing tip
                             </button>
                         </div>
                         <div class="iw-studio-foot-right">
-                            <span class="iw-studio-foot-note">Quill editor enabled for cleaner formatting and previews.</span>
+                            <span class="iw-studio-foot-note">Formatting stays visible while the writing surface remains clean and easy to read.</span>
                         </div>
                     </div>
                 </section>
 
                 <aside class="iw-studio-right-rail">
                     <div class="iw-studio-rail-block">
-                        <div class="iw-studio-rail-title">Image</div>
-                        <div class="iw-studio-preview d-flex justify-content-center">
-                            <div class="d-flex flex-column align-items-center">
-                                <i id="upload-icon" class="bi bi-image fs-1"></i>
-                                <label for="banner" role="button" id="banner-label">
-                                    <span id="upload-text" class="d-block">Select Image</span>
-                                </label>
-                                <img id="bannerPreview">
-                                <p id="bannerName" style="display: none; margin-bottom: 0.2rem; max-width: 20ch; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; align-self: flex-start;"></p>
-                                <p id="bannerSize" style="display: none; margin-bottom: 0.2rem; align-self: flex-start;"></p>
+                        <div class="iw-studio-rail-title">Story settings</div>
+
+                        <div class="iw-studio-field">
+                            <label class="iw-studio-label" for="story-category">Category</label>
+                            <select id="story-category" name="category_id" class="iw-studio-select" required>
+                                <option value="" <?= $categoryValue <= 0 ? 'selected' : '' ?>>Select a category</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= (int) $cat['id'] ?>" <?= $categoryValue === (int) $cat['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($cat['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="iw-studio-field">
+                            <label class="iw-studio-label" for="story-slug-note">Publishing flow</label>
+                            <div id="story-slug-note" class="iw-studio-note-list">
+                                <div class="iw-studio-note-item">Use <strong>Save Draft</strong> while refining.</div>
+                                <div class="iw-studio-note-item">Use <strong>Publish</strong> when title, body, and category are ready.</div>
                             </div>
-                            <input hidden type="file" id="banner" accept="image/*" name="banner">
                         </div>
                     </div>
 
                     <div class="iw-studio-rail-block">
-                        <div class="iw-studio-rail-title">Story settings</div>
+                        <div class="iw-studio-rail-title">Cover image</div>
+                        <label for="banner" class="iw-studio-upload-card">
+                            <span class="iw-studio-upload-icon"><i class="bi bi-image"></i></span>
+                            <span class="iw-studio-upload-title" id="upload-text">Choose a cover image</span>
+                            <span class="iw-studio-upload-copy">PNG, JPG, or GIF up to 5 MB</span>
+                            <img id="bannerPreview" alt="Cover image preview">
+                        </label>
+                        <input hidden type="file" id="banner" accept="image/png,image/jpeg,image/gif" name="banner">
+                        <div class="iw-studio-file-meta" id="bannerMeta">No image selected yet.</div>
+                    </div>
 
-
-                        <div class="iw-studio-field">
-                            <label class="iw-studio-label" for="story-category">Category</label>
-                            <select id="story-category" name="category" class="iw-studio-select">
-                                <option style="background-color: #151d2f; color: #2f2f2f;" selected disabled>Select Category</option>
-                                <?php foreach ($categories as $cat) { ?>
-                                    <option style="background-color: #111827; color: #fff" value="<?= htmlspecialchars($cat['id']) ?>"><?= htmlspecialchars($cat['name']) ?>
-
-                                    </option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-
-
-                        <div class="iw-studio-field">
-                            <label class="iw-studio-label" for="story-tone">Tone</label>
-                            <select id="story-tone" class="iw-studio-select">
-                                <option>Reflective</option>
-                                <option>Sharp</option>
-                                <option>Warm</option>
-                                <option>Bold</option>
-                                <option>Professional</option>
-                            </select>
-                        </div>
-                        <div class="iw-studio-field">
-                            <label class="iw-studio-label" for="story-tags">Tags</label>
-                            <input id="story-tags" type="text" class="iw-studio-input" placeholder="essays, process, design">
+                    <div class="iw-studio-rail-block">
+                        <div class="iw-studio-rail-title">Live preview</div>
+                        <div class="iw-studio-preview-card">
+                            <span class="iw-badge-soft is-warning" id="preview-badge">Draft</span>
+                            <h2 class="iw-studio-preview-title" id="preview-title">Untitled story</h2>
+                            <p class="iw-studio-preview-body" id="preview-body">Your story summary will appear here as you write.</p>
                         </div>
                     </div>
 
@@ -205,6 +223,10 @@ try {
                             <div class="iw-status-row">
                                 <span class="iw-status-label">Content</span>
                                 <strong id="check-content">Waiting</strong>
+                            </div>
+                            <div class="iw-status-row">
+                                <span class="iw-status-label">Category</span>
+                                <strong id="check-category">Waiting</strong>
                             </div>
                             <div class="iw-status-row">
                                 <span class="iw-status-label">Readiness</span>
@@ -221,8 +243,27 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
     <script>
+        const initialHtml = <?= json_encode($contentValue, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
         const toast = document.querySelector('.iw-toast');
+        const titleInput = document.getElementById('iw-title');
+        const contentInput = document.getElementById('iw-content');
+        const wordCount = document.getElementById('iw-count');
+        const completion = document.getElementById('iw-completion');
+        const previewTitle = document.getElementById('preview-title');
+        const previewBody = document.getElementById('preview-body');
+        const previewBadge = document.getElementById('preview-badge');
+        const statusPill = document.getElementById('iw-status');
+        const categorySelect = document.getElementById('story-category');
+        const checkTitle = document.getElementById('check-title');
+        const checkContent = document.getElementById('check-content');
+        const checkCategory = document.getElementById('check-category');
+        const checkReady = document.getElementById('check-ready');
+        const bannerInput = document.getElementById('banner');
+        const bannerPreview = document.getElementById('bannerPreview');
+        const bannerMeta = document.getElementById('bannerMeta');
+        const uploadText = document.getElementById('upload-text');
         let toastTimer = null;
+        let saveTimer = null;
 
         function softToast(message) {
             if (!toast) return;
@@ -240,71 +281,91 @@ try {
             modules: {
                 toolbar: '#iw-toolbar'
             },
-            placeholder: 'Start writing your story...',
+            placeholder: 'Start with the opening lines of your story...',
             theme: 'snow'
         });
 
-        const titleInput = document.getElementById('iw-title');
-        const contentInput = document.getElementById('iw-content');
-        const count = document.getElementById('iw-count');
-        const previewTitle = document.getElementById('preview-title');
-        const previewBody = document.getElementById('preview-body');
-        const status = document.getElementById('iw-status');
-        const checkTitle = document.getElementById('check-title');
-        const checkContent = document.getElementById('check-content');
-        const checkReady = document.getElementById('check-ready');
-        let saveTimer = null;
+        if (initialHtml) {
+            quill.clipboard.dangerouslyPasteHTML(initialHtml);
+        }
+
+        function setStatus(text) {
+            statusPill.textContent = text;
+        }
 
         function refreshStudio() {
-            const text = quill.getText().trim();
+            const text = quill.getText().replace(/\s+/g, ' ').trim();
             const html = quill.root.innerHTML;
-            const words = text ? text.split(/\s+/).length : 0;
+            const words = text ? text.split(' ').length : 0;
             const minutes = words ? Math.max(1, Math.ceil(words / 200)) : 0;
             const storyTitle = titleInput.value.trim() || 'Untitled story';
+            const storyPreview = text ? `${text.slice(0, 180)}${text.length > 180 ? '…' : ''}` : 'Your story summary will appear here as you write.';
+            const categoryReady = categorySelect.value !== '';
 
             contentInput.value = html === '<p><br></p>' ? '' : html;
-            count.textContent = `${words} words • ${minutes} min read`;
+            wordCount.textContent = `${words} words • ${minutes} min read`;
             previewTitle.textContent = storyTitle;
-            previewBody.textContent = text || 'Your preview updates as you write.';
+            previewBody.textContent = storyPreview;
+            previewBadge.textContent = words > 30 ? 'In Progress' : 'Draft';
+
             checkTitle.textContent = titleInput.value.trim() ? 'Ready' : 'Waiting';
             checkContent.textContent = words > 30 ? 'Ready' : 'Needs more';
-            checkReady.textContent = titleInput.value.trim() && words > 30 ? 'Good to publish' : 'Keep drafting';
+            checkCategory.textContent = categoryReady ? 'Ready' : 'Waiting';
 
-            status.textContent = 'Saving';
+            if (titleInput.value.trim() && words > 30 && categoryReady) {
+                checkReady.textContent = 'Good to publish';
+                completion.textContent = 'Everything important is in place';
+            } else if (words > 0) {
+                checkReady.textContent = 'Keep shaping';
+                completion.textContent = 'Add title, category, and a fuller draft';
+            } else {
+                checkReady.textContent = 'Start drafting';
+                completion.textContent = 'Start with a headline and opening paragraph';
+            }
+
+            setStatus('Saving');
             clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => {
-                status.textContent = 'Saved';
-            }, 700);
+            saveTimer = setTimeout(() => setStatus('Draft'), 650);
+        }
+
+        function refreshBanner() {
+            const file = bannerInput.files && bannerInput.files[0];
+            if (!file) {
+                bannerPreview.removeAttribute('src');
+                bannerPreview.style.display = 'none';
+                bannerMeta.textContent = 'No image selected yet.';
+                uploadText.textContent = 'Choose a cover image';
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                bannerInput.value = '';
+                softToast('Please choose a valid image file.');
+                refreshBanner();
+                return;
+            }
+
+            bannerMeta.textContent = `${file.name} • ${(file.size / 1000000).toFixed(2)} MB`;
+            uploadText.textContent = 'Change cover image';
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                bannerPreview.src = event.target?.result || '';
+                bannerPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
         }
 
         quill.on('text-change', refreshStudio);
         titleInput.addEventListener('input', refreshStudio);
+        categorySelect.addEventListener('change', refreshStudio);
+        bannerInput.addEventListener('change', refreshBanner);
         document.querySelector('form').addEventListener('submit', () => {
             contentInput.value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
         });
 
         refreshStudio();
-    </script>
-    <script>
-        document.getElementById('banner').addEventListener('change', function() {
-            let file = this.files[0];
-            if (file && file.type.startsWith('image/')) {
-                document.getElementById('bannerName').textContent = 'Selected: ' + file.name;
-                document.getElementById('bannerSize').textContent = 'Size: ' + (file.size / 1000000).toFixed(2) + ' MB';
-                document.getElementById('bannerSize').style.display = 'block';
-                document.getElementById('bannerName').style.display = 'block';
-
-                let reader = new FileReader();
-
-                reader.onload = function(e) {
-                    document.getElementById('upload-icon').style.display = 'none';
-                    document.getElementById('upload-text').innerText = 'Change Image';
-                    document.getElementById('bannerPreview').src = e.target.result;
-                    document.getElementById('bannerPreview').style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+        refreshBanner();
     </script>
 </body>
 
