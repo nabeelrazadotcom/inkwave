@@ -113,7 +113,7 @@ function iwPostStatusLabel(string $status): string
                                         <td><?= $dateValue ? htmlspecialchars(date('F j, Y', strtotime($dateValue))) : 'No date' ?></td>
                                         <td class="text-end">
                                             <a href="./edit-post.php?id=<?= (int) $post['id'] ?>" class="iw-dash-section-link">Edit</a>
-                                            <a href="./delete_post.php?id=<?= (int) $post['id'] ?>" class="iw-dash-section-link">Delete</a>
+                                            <a href="#" class="iw-dash-section-link delete-trigger" data-delete-url="./delete_post.php?id=<?= (int) $post['id'] ?>">Delete</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -135,8 +135,8 @@ function iwPostStatusLabel(string $status): string
                     </div>
                     <h4>Do You want to delete this blog?</h4>
                     <div class="popup-buttons d-flex gap-1 justify-content-end">
-                        <a id="delete" class="btn btn-danger">Delete</a>
-                        <a id="cancel" class="btn btn-primary">Cancel</a>
+                        <a id="delete" class="popup-btn popup-btn-delete" href="#">Delete</a>
+                        <a id="cancel" class="popup-btn popup-btn-cancel" href="#">Cancel</a>
                     </div>
                 </div>
             </section>
@@ -164,6 +164,42 @@ function iwPostStatusLabel(string $status): string
                 }
             });
         }
+    </script>
+    <script>
+        // Delete popup logic
+        const popup = document.querySelector('.popup');
+        const deleteBtn = document.getElementById('delete');
+        const cancelBtn = document.getElementById('cancel');
+        const deleteTriggers = document.querySelectorAll('.delete-trigger');
+        let deleteUrl = '';
+
+        deleteTriggers.forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                deleteUrl = trigger.dataset.deleteUrl;
+                popup.classList.add('show');
+            });
+        });
+
+        cancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            popup.classList.remove('show');
+            deleteUrl = '';
+        });
+
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (deleteUrl) {
+                window.location.href = deleteUrl;
+            }
+        });
+
+        // Close popup when clicking outside
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.classList.remove('show');
+            }
+        });
     </script>
     <script>
         // Theme toggle logic
