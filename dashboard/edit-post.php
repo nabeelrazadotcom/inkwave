@@ -8,6 +8,7 @@ if (empty($_SESSION['Loggedin'])) {
 
 require_once '../config/db.php';
 
+
 $postId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($postId <= 0) {
     $_SESSION['PostErr'] = "Choose a post to edit first.";
@@ -88,6 +89,7 @@ unset($_SESSION['edit_post_form_data']);
                 </div>
 
                 <div class="iw-dash-header-right iw-studio-actions">
+                    <button id="theme-toggle" class="btn btn-secondary" style="margin-right:10px;"><i class="bi bi-sun"></i> Light</button>
                     <a href="./posts.php" class="btn btn-outline-light">
                         <i class="bi bi-arrow-left"></i>
                         Back to Posts
@@ -222,7 +224,7 @@ unset($_SESSION['edit_post_form_data']);
                             <span class="iw-studio-upload-icon"><i class="bi bi-image"></i></span>
                             <span class="iw-studio-upload-title" id="upload-text"><?= $imageValue !== '' ? 'Replace cover image' : 'Choose a cover image' ?></span>
                             <span class="iw-studio-upload-copy">PNG, JPG, or GIF up to 5 MB</span>
-                            <img id="bannerPreview" alt="Cover image preview"<?= $imageValue !== '' ? ' src="../uploads/posts/' . rawurlencode($imageValue) . '"' : '' ?>>
+                            <img id="bannerPreview" alt="Cover image preview" <?= $imageValue !== '' ? ' src="../uploads/posts/' . rawurlencode($imageValue) . '"' : '' ?>>
                         </label>
                         <input hidden type="file" id="banner" accept="image/png,image/jpeg,image/gif" name="banner">
                         <div class="iw-studio-file-meta" id="bannerMeta">

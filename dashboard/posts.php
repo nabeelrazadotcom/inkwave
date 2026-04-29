@@ -39,7 +39,7 @@ function iwPostStatusLabel(string $status): string
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Posts — Inkwave</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/bs-css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -113,6 +113,7 @@ function iwPostStatusLabel(string $status): string
                                         <td><?= $dateValue ? htmlspecialchars(date('F j, Y', strtotime($dateValue))) : 'No date' ?></td>
                                         <td class="text-end">
                                             <a href="./edit-post.php?id=<?= (int) $post['id'] ?>" class="iw-dash-section-link">Edit</a>
+                                            <a href="./delete_post.php?id=<?= (int) $post['id'] ?>" class="iw-dash-section-link">Delete</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -126,6 +127,18 @@ function iwPostStatusLabel(string $status): string
                         <p class="iw-empty-state-text">Create your first post to start building the library.</p>
                     </div>
                 <?php endif; ?>
+
+                <div class="popup d-flex flex-column gap-3">
+                    <div class="d-flex ">
+                        <span class="iw-sidebar-logo-ink">Ink</span>
+                        <span class="iw-sidebar-logo-wave">wave</span>
+                    </div>
+                    <h4>Do You want to delete this blog?</h4>
+                    <div class="popup-buttons d-flex gap-1 justify-content-end">
+                        <a id="delete" class="btn btn-danger">Delete</a>
+                        <a id="cancel" class="btn btn-primary">Cancel</a>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
@@ -151,6 +164,28 @@ function iwPostStatusLabel(string $status): string
                 }
             });
         }
+    </script>
+    <script>
+        // Theme toggle logic
+        const themeBtn = document.getElementById('theme-toggle');
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+                themeBtn.innerHTML = '<i class="bi bi-moon"></i> Dark';
+            } else {
+                document.body.classList.remove('light-theme');
+                themeBtn.innerHTML = '<i class="bi bi-sun"></i> Light';
+            }
+            localStorage.setItem('theme', theme);
+        }
+        themeBtn.addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-theme');
+            applyTheme(isLight ? 'dark' : 'light');
+        });
+        // Initialize theme from storage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
     </script>
 </body>
 

@@ -95,6 +95,20 @@ body::before {
   opacity: 0.35;
 }
 
+/* Light theme overrides */
+.light-theme {
+  --iw-bg: #f5f5f5;
+  --iw-surface: #111827;
+  --iw-accent: #2563eb;
+  --iw-accent-light: #3b82f6;
+  --iw-muted: #6b7280;
+  --iw-faint: #e5e7eb;
+  --iw-stroke: rgba(0, 0, 0, 0.1);
+  --iw-stroke-strong: rgba(0, 0, 0, 0.2);
+  --iw-glass: rgba(255, 255, 255, 0.75);
+  --iw-glass-border: rgba(0, 0, 0, 0.08);
+}
+
 /* ==========================================================================
    4. ANIMATIONS
    ========================================================================== */
@@ -1408,6 +1422,21 @@ body.iw-dashboard {
   stroke: currentColor;
   opacity: 0.7;
   flex-shrink: 0;
+}
+
+.popup {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: 90vw;
+  padding: 2rem;
+  border-radius: var(--iw-radius-lg);
+  background: var(--iw-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--iw-glass-border);
+  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+  animation: iw-fade-up 0.3s ease-out;
 }
 
 .iw-nav-item.active .bi {
